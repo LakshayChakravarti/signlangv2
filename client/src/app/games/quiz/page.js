@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Navbar from "@/components/ui/Navbar";
 import { HiOutlineArrowLeft, HiOutlineCheckCircle, HiOutlineXCircle } from "react-icons/hi2";
+import GestureDisplay from "@/components/common/GestureDisplay";
 
 const QUIZ_QUESTIONS = [
   {
@@ -25,6 +26,18 @@ const QUIZ_QUESTIONS = [
     question: "Which gesture means 'Thank you' in ASL?",
     options: ["Hand starts at chin and moves forward", "Hand waves goodbye", "Make an 'O' shape over heart", "Hands clasp together in prayer"],
     correct: 0
+  },
+  {
+    question: "Identify the ASL sign shown below:",
+    gestureId: "A",
+    options: ["Letter A", "Letter B", "Letter C", "Letter E"],
+    correct: 0
+  },
+  {
+    question: "What does this sign represent?",
+    gestureId: "C",
+    options: ["Letter O", "Letter C", "Letter G", "Letter D"],
+    correct: 1
   }
 ];
 
@@ -97,6 +110,12 @@ export default function QuizGame() {
           <h2 className="text-2xl font-bold text-[var(--text-primary)] leading-relaxed mb-8">
             {q.question}
           </h2>
+
+          {q.gestureId && (
+            <div className="flex justify-center mb-8">
+              <GestureDisplay gestureId={q.gestureId} size="md" />
+            </div>
+          )}
 
           <div className="space-y-4">
             {q.options.map((option, idx) => {

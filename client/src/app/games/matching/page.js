@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Navbar from "@/components/ui/Navbar";
 import { HiOutlineArrowLeft, HiOutlineArrowPath } from "react-icons/hi2";
+import GestureDisplay from "@/components/common/GestureDisplay";
 
 const CARDS_DATA = [
   { id: 1, type: 'letter', content: 'A', pairId: 'pair_A' },
@@ -95,30 +96,43 @@ export default function MatchingGame() {
               <div 
                 key={`${card.id}-${idx}`}
                 onClick={() => handleFlip(idx)}
-                className={`relative w-full aspect-square rounded-2xl cursor-pointer transition-all duration-500 preserve-3d ${
+                className={`relative w-full aspect-[3/4] rounded-[2rem] cursor-pointer transition-all duration-500 preserve-3d shadow-2xl ${
                   isFlipped ? "rotate-y-180" : ""
-                } ${matched.includes(card.pairId) ? "opacity-60 scale-95" : "hover:scale-105"}`}
+                } ${matched.includes(card.pairId) ? "opacity-40 scale-95" : "hover:scale-105 hover:-translate-y-2"}`}
                 style={{ transformStyle: 'preserve-3d' }}
               >
                 
                 {/* Back (Cover) */}
-                <div className="absolute inset-0 backface-hidden rounded-2xl bg-[var(--primary)] flex flex-col items-center justify-center shadow-lg border-2 border-[var(--glass-border)] box-border p-2">
-                  <div className="w-full h-full border border-white/20 rounded-xl flex items-center justify-center">
-                    <span className="text-3xl font-bold opacity-30 text-white">?</span>
+                <div className="absolute inset-0 backface-hidden rounded-[2rem] bg-gradient-to-br from-[#1e293b] to-[#0f172a] flex flex-col items-center justify-center shadow-2xl border border-white/5 box-border p-2">
+                  <div className="w-full h-full border border-white/5 rounded-[1.5rem] flex items-center justify-center bg-white/5">
+                    <span className="text-4xl font-black opacity-20 text-blue-500 animate-pulse">?</span>
                   </div>
                 </div>
 
                 {/* Front (Content) */}
                 <div 
-                  className="absolute inset-0 backface-hidden rounded-2xl bg-white flex flex-col items-center justify-center shadow-lg border-2 border-[var(--glass-border)] rotate-y-180"
-                  style={{ transform: 'rotateY(180deg)', backfaceVisibility: 'hidden' }}
+                  className="absolute inset-0 backface-hidden rounded-[2rem] bg-[#0f172a] flex flex-col items-center justify-center shadow-2xl border border-white/10 rotate-y-180 overflow-hidden"
+                  style={{ 
+                    transform: 'rotateY(180deg)', 
+                    backfaceVisibility: 'hidden',
+                    boxShadow: isFlipped ? "0 0 30px rgba(37, 99, 235, 0.2)" : "none"
+                  }}
                 >
-                  <span className={`text-5xl font-extrabold ${card.type === 'sign' ? 'text-[var(--primary)] font-serif' : 'text-slate-800'}`}>
-                    {card.content}
-                  </span>
-                  <span className="absolute bottom-3 text-[10px] uppercase font-bold text-gray-400 tracking-wider">
-                    {card.type}
-                  </span>
+                  <div className="w-[85%] h-[85%] flex items-center justify-center overflow-hidden">
+                    {card.type === 'sign' ? (
+                       <GestureDisplay 
+                         gestureId={card.content} 
+                         size="full" 
+                         showInstructions={false} 
+                         showReplay={false}
+                         className="w-full h-full"
+                       />
+                    ) : (
+                      <span className="text-7xl font-black text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">
+                        {card.content}
+                      </span>
+                    )}
+                  </div>
                 </div>
 
               </div>

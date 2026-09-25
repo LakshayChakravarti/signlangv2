@@ -10,6 +10,7 @@ import {
 } from "react-icons/hi2";
 import { motion, AnimatePresence } from "framer-motion";
 import { getLessonGestureInfo, GESTURE_IMAGES } from "@/lib/gestures";
+import GestureDisplay from "../common/GestureDisplay";
 import useGesturePredictor from "@/hooks/useGesturePredictor";
 const { SIGN_MAP } = require("@/lib/signDetection");
 
@@ -214,139 +215,117 @@ function LetterTest({ targetLetter, onDone }) {
              style={{ width: `${stability}%` }} />
       </div>
 
-      <div className="relative rounded-3xl overflow-hidden border-2 border-[var(--glass-border)] shadow-2xl transition-all duration-500"
-           style={{ minHeight: 380, borderColor: stability >= 80 ? "var(--primary)" : "var(--glass-border)" }}>
-
-        <WebcamCapture 
-          isActive={true} 
-          onLandmarks={handleLandmarks} 
-          showOverlay={true}
-          onCameraReady={setCameraReady}
-          onCameraError={setCameraError}
-        />
-
-        {/* Fallback UI Messages */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-none">
-          {cameraError && (
-            <div className="text-red-500 text-center bg-black/60 backdrop-blur-md p-4 rounded-2xl border border-red-500/50 font-bold">
-              Camera not available. Please allow access or turn it on.
-            </div>
-          )}
-
-          {!cameraError && !cameraReady && (
-            <div className="text-yellow-500 text-center bg-black/60 backdrop-blur-md p-4 rounded-2xl border border-yellow-500/50 font-bold">
-              Starting camera...
-            </div>
-          )}
+      {/* Gesture Guide + Camera side by side */}
+      <div className="flex flex-col xl:flex-row gap-8 items-stretch justify-center p-8 bg-black/5 rounded-[2.5rem] border border-white/5 shadow-inner">
+        
+        {/* Gesture Guide */}
+        <div className="flex-1 flex flex-col items-center justify-center glass-card p-8 rounded-[2rem] border-white/10 shadow-2xl relative overflow-hidden group">
+          <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+          <p className="text-xs font-black text-[var(--primary)] mb-6 uppercase tracking-[0.3em] relative z-10">
+            Follow this gesture
+          </p>
+          <div className="relative z-10 w-full max-w-[240px]">
+            <GestureDisplay gestureId={targetLetter} size="md" />
+          </div>
+          <AnimatePresence>
+            {prediction?.predicted_class?.toUpperCase() === targetLetter?.toUpperCase() && (
+              <motion.div 
+                initial={{ opacity: 0, y: 10, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                className="absolute bottom-6 bg-[var(--success)] text-white px-6 py-2 rounded-full font-black text-sm shadow-[0_10px_20px_-5px_var(--success)] z-20 flex items-center gap-2"
+              >
+                <HiOutlineCheckCircle className="w-4 h-4" />
+                CORRECT
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
-        {/* Advanced toggle */}
-        <button
-          onClick={() => setShowAdvanced(!showAdvanced)}
-          className="absolute bottom-4 right-4 z-30 px-3 py-1.5 bg-black/40 hover:bg-black/60 backdrop-blur-md rounded-xl border border-white/20 text-[10px] font-bold text-white transition-all uppercase tracking-widest"
-        >
-          {showAdvanced ? "Close AI Core" : "AI Insights"}
-        </button>
+        {/* Camera Container */}
+        <div className="flex-[1.5] relative min-h-[400px] rounded-[2rem] overflow-hidden border-2 border-white/10 shadow-2xl transition-all duration-500 group"
+             style={{ borderColor: stability >= 80 ? "var(--primary)" : "var(--glass-border)" }}>
+          
+          <WebcamCapture 
+            isActive={true} 
+            onLandmarks={handleLandmarks} 
+            showOverlay={true}
+            onCameraReady={setCameraReady}
+            onCameraError={setCameraError}
+          />
 
-        {/* AI Core panel */}
-        <AnimatePresence>
-          {showAdvanced && prediction && typeof prediction === "object" && (
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
-              className="absolute top-4 right-4 z-20 w-44 glass-card p-3 rounded-2xl border-white/20 shadow-2xl space-y-3"
-            >
-              <div className="flex items-center justify-between border-b border-white/10 pb-2 mb-2">
-                <span className="text-[9px] font-black uppercase text-white/50">AI Core v3.0</span>
-                <div className={`w-1.5 h-1.5 rounded-full ${prediction.agreement ? "bg-green-400" : "bg-yellow-400"} animate-pulse`} />
+          {/* Overlays on Camera */}
+          <div className="absolute inset-0 pointer-events-none z-20">
+            {/* Mode indicator */}
+            <div className="absolute top-4 right-4">
+              <div className="bg-black/40 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 text-[9px] font-black text-white uppercase tracking-widest">
+                AI: {prediction?.method?.split('_')[0] || 'active'}
               </div>
-              <div className="space-y-2">
-                {Object.entries(prediction.models_info || {}).map(([name, info]) => (
-                  <div key={name} className="flex flex-col gap-1">
-                    <div className="flex justify-between text-[9px] font-bold">
-                      <span className="uppercase text-white/70">{name}</span>
-                      <span className={info.status === "online" ? "text-green-400" : "text-red-400"}>
-                        {info.status === "online" ? `${Math.round(info.conf * 100)}%` : info.status}
-                      </span>
-                    </div>
-                    <div className="h-1 bg-white/5 rounded-full overflow-hidden">
-                      <div className={`h-full ${info.status === "online" ? "bg-[var(--primary)]" : "bg-white/10"}`}
-                           style={{ width: `${info.conf * 100}%` }} />
-                    </div>
+            </div>
+
+            {/* Pose integrity gauge */}
+            <div className="absolute top-4 left-4 flex bg-black/40 backdrop-blur-md px-3 py-2 rounded-2xl border border-white/10 items-center gap-3">
+              <div className="relative w-8 h-8">
+                <svg className="w-full h-full transform -rotate-90">
+                  <circle cx="16" cy="16" r="14" stroke="currentColor" strokeWidth="3" fill="transparent" className="text-white/10" />
+                  <circle cx="16" cy="16" r="14" stroke="currentColor" strokeWidth="3" fill="transparent"
+                          strokeDasharray={87.9} strokeDashoffset={87.9 - (87.9 * stability) / 100}
+                          className="text-[var(--primary)] transition-all duration-300" />
+                </svg>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[7px] font-black uppercase text-white/40 tracking-widest">Integrity</span>
+                <span className="text-[10px] font-bold text-white uppercase">{stability > 50 ? "Steady" : "Aligning"}</span>
+              </div>
+            </div>
+
+            {/* Detection feedback text */}
+            <div className="absolute bottom-24 left-1/2 -translate-x-1/2 w-full px-8 text-center">
+              <div className="text-[11px] font-black text-white drop-shadow-lg opacity-90 py-2 px-4 rounded-full bg-black/40 backdrop-blur-md border border-white/5 inline-block uppercase tracking-wider">
+                {detectedText === "Hold steady..." ? "Hold steady..." : 
+                 detectedText === "Show your hand" ? "Show your hand" : 
+                 `Detected: ${detectedText}`}
+              </div>
+            </div>
+
+            {/* Result sealed box */}
+            <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end">
+              <div className="bg-black/60 backdrop-blur-xl p-3 rounded-2xl border border-white/10 text-white shadow-2xl flex items-center gap-3">
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl font-black shadow-lg ${finalPredictionRef.current ? "bg-[var(--success)]" : "bg-[var(--primary)]"}`}>
+                  {finalPredictionRef.current || (detectedText?.length === 1 ? detectedText : "–")}
+                </div>
+                <div>
+                  <div className="text-[8px] uppercase font-bold tracking-widest opacity-50">
+                    {finalPredictionRef.current ? "Locked" : "Live"}
                   </div>
-                ))}
+                  <div className={`text-[10px] font-black ${detectedText === targetLetter ? "text-green-400" : "text-white/60"}`}>
+                    {finalPredictionRef.current ? "RESULT SEALED" : detectedText === targetLetter ? "MATCH" : "PENDING"}
+                  </div>
+                </div>
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
 
-        {/* Mode indicator */}
-        <div className="absolute top-4 right-4 z-20 pointer-events-none">
-          <div className="bg-black/40 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 text-[10px] font-bold text-white uppercase tracking-widest">
-            Mode: {
-              prediction?.method === "ensemble_agree" ? "Ensemble" :
-              prediction?.method === "cnn_primary"    ? "CNN"      :
-              prediction?.method === "knn_fallback"   ? "KNN"      :
-              "External"
-            }
-          </div>
-        </div>
-
-        {/* Pose integrity gauge */}
-        <div className="absolute top-4 left-4 z-20 flex bg-black/20 backdrop-blur-md px-3 py-2 rounded-2xl border border-white/10 items-center gap-3">
-          <div className="relative w-8 h-8">
-            <svg className="w-full h-full transform -rotate-90">
-              <circle cx="16" cy="16" r="14" stroke="currentColor" strokeWidth="3" fill="transparent" className="text-white/10" />
-              <circle cx="16" cy="16" r="14" stroke="currentColor" strokeWidth="3" fill="transparent"
-                      strokeDasharray={87.9} strokeDashoffset={87.9 - (87.9 * stability) / 100}
-                      className="text-[var(--primary)] transition-all duration-300" />
-            </svg>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-[8px] font-black uppercase text-white/40 tracking-[0.2em]">Integrity</span>
-            <span className="text-xs font-bold text-white uppercase">{stability > 50 ? "Steady" : "Aligning"}</span>
-          </div>
-        </div>
-
-        {/* Detection feedback */}
-        <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-20 pointer-events-none w-full px-12 text-center">
-          <div className="text-sm font-bold text-white drop-shadow-lg opacity-80 py-2 px-4 rounded-full bg-black/20 backdrop-blur-sm inline-block">
-            {detectedText === "Hold steady..."
-              ? "Hold steady..."
-              : detectedText === "Camera Off"
-              ? "Camera Off"
-              : detectedText === "Show your hand" || detectedText === "–"
-              ? "Show your hand to camera"
-              : `Detected: ${detectedText}`}
-          </div>
-        </div>
-
-        {/* Live / locked detection box */}
-        <div className="absolute bottom-4 left-4 z-10">
-          <div className="bg-black/60 backdrop-blur-xl p-4 rounded-3xl border border-white/20 text-white shadow-2xl flex items-center gap-4">
-            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl font-black shadow-lg ${finalPredictionRef.current ? "bg-[var(--success)]" : "bg-[var(--primary)]"}`}>
-              {finalPredictionRef.current || detectedText}
-            </div>
-            <div>
-              <div className="text-[10px] uppercase font-bold tracking-widest opacity-50">
-                {finalPredictionRef.current ? "Final Locked Prediction" : "Live Detection"}
-              </div>
-              <div className={`text-xs font-black ${detectedText === targetLetter ? "text-green-400" : "text-white/60"}`}>
-                {finalPredictionRef.current ? "RESULT SEALED" : detectedText === targetLetter ? "MATCHING SYSTEM" : "PENDING POSE"}
+              {/* Target Small Overlay */}
+              <div className="w-12 h-12 bg-white rounded-xl shadow-2xl flex flex-col items-center justify-center border border-[var(--primary)]">
+                <span className="text-[7px] font-black text-[var(--text-muted)] uppercase mb-[-1px]">Target</span>
+                <span className="text-xl font-black text-[var(--primary)] leading-none">{targetLetter}</span>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Target visualization */}
-        <div className="absolute top-4 right-20 w-16 h-16 bg-white rounded-2xl shadow-2xl flex flex-col items-center justify-center border-2 border-[var(--primary)]">
-          <span className="text-[9px] font-black text-[var(--text-muted)] uppercase mb-[-2px]">Target</span>
-          {GESTURE_IMAGES[targetLetter] ? (
-            <img src={GESTURE_IMAGES[targetLetter]} alt={targetLetter} className="w-10 h-10 object-contain" />
-          ) : (
-            <span className="text-3xl font-black text-[var(--primary)]">{targetLetter}</span>
-          )}
+          {/* Fallback UI Messages */}
+          <div className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none">
+            {cameraError && (
+              <div className="text-red-500 text-center bg-black/60 backdrop-blur-md p-4 rounded-2xl border border-red-500/50 text-xs font-bold mx-8">
+                Camera error. Please check permissions.
+              </div>
+            )}
+            {!cameraError && !cameraReady && (
+              <div className="flex flex-col items-center gap-3 bg-black/40 backdrop-blur-md p-6 rounded-[2rem] border border-white/10">
+                <div className="w-8 h-8 border-2 border-[var(--primary)] border-t-transparent rounded-full animate-spin" />
+                <span className="text-[10px] font-black text-white uppercase tracking-widest">Initializing...</span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

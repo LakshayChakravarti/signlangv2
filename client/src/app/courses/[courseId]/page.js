@@ -15,29 +15,56 @@ import {
 } from "react-icons/hi2";
 
 export default function CourseDetailPage() {
-  const { courseId } = useParams();
+  const params = useParams();
+  const courseId = params?.courseId;
+  
   const router = useRouter();
   const { user } = useAuth();
   const [courseData, setCourseData] = useState(null);
   const [userProgress, setUserProgress] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
+      // 1. Validate route params
+      if (!courseId || courseId === "undefined") {
+        setLoading(false);
+        return;
+      }
+
+      // 2. Add safe ID validation (just check if exists)
+      if (!courseId) {
+        setLoading(false);
+        return;
+      }
+
       try {
+        setLoading(true);
+        setNotFound(false);
+
         const [courseRes, progressRes] = await Promise.all([
           api.get(`/courses/${courseId}`),
           user ? api.get(`/progress/${courseId}`) : Promise.resolve({ data: { progress: [] } }),
         ]);
 
-        setCourseData(courseRes.data);
-        setUserProgress(progressRes.data.progress);
+        if (courseRes.data && courseRes.data.course) {
+          setCourseData(courseRes.data);
+          setUserProgress(progressRes.data.progress || []);
+        } else {
+          setNotFound(true);
+        }
       } catch (err) {
-        console.error(err);
+        console.error("Course fetch failed:", err);
+        // 5. Improve API error handling
+        if (err.response?.status === 404 || err.response?.status === 400) {
+          setNotFound(true);
+        }
       } finally {
         setLoading(false);
       }
     };
+
     fetchData();
   }, [courseId, user]);
 
@@ -49,12 +76,16 @@ export default function CourseDetailPage() {
     );
   }
 
-  if (!courseData) {
+  if (notFound || !courseData) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">Course not found</h2>
-          <button onClick={() => router.push("/courses")} className="btn btn-primary">
+      <div className="min-h-screen flex items-center justify-center bg-[var(--bg-primary)]">
+        <div className="glass-card p-12 text-center max-w-md mx-auto">
+          <h2 className="text-3xl font-bold mb-4 text-red-600">Course not found</h2>
+          <p className="text-[var(--text-secondary)] mb-8">The course you are looking for might have been moved or deleted.</p>
+          <button 
+            onClick={() => router.push("/courses")} 
+            className="btn btn-primary w-full py-4 rounded-xl font-bold"
+          >
             Back to Courses
           </button>
         </div>
@@ -134,7 +165,7 @@ export default function CourseDetailPage() {
               </p>
 
               <div className="grid sm:grid-cols-2 gap-4">
-                {course.features.map((feature, i) => (
+                {(Array.isArray(course.features) ? course.features : []).map((feature, i) => (
                   <div key={i} className="flex items-center gap-2">
                     <HiOutlineCheckCircle className="w-5 h-5 flex-shrink-0" style={{ color: course.color }} />
                     <span className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>{feature}</span>
@@ -147,7 +178,7 @@ export default function CourseDetailPage() {
             <div>
               <h2 className="text-2xl font-bold mb-6" style={{ color: "var(--text-primary)" }}>Syllabus</h2>
               <div className="space-y-4">
-                {lessons.map((lesson) => {
+                {(Array.isArray(lessons) ? lessons : []).map((lesson) => {
                   const status = getLessonStatus(lesson._id, lesson.order);
                   const prog = userProgress.find((p) => p.lessonId === lesson._id);
 

@@ -6,29 +6,32 @@ import { motion } from "framer-motion";
 
 export default function LessonSidebar({
   course,
-  lessons,
+  lessons = [],
   currentLessonId,
-  userProgress,
+  userProgress = [],
   isAdmin,
 }) {
+  // Ensure safe arrays even if parent passes undefined
+  const safeLessons = Array.isArray(lessons) ? lessons : [];
+  const safeProgress = Array.isArray(userProgress) ? userProgress : [];
   const getLessonStatus = (lessonId, order) => {
     if (isAdmin) return "available";
 
     // First lesson is always available
     if (order === 1) {
-      const prog = userProgress.find((p) => p.lessonId === lessonId);
+      const prog = safeProgress.find((p) => p.lessonId === lessonId);
       return prog?.completed ? "completed" : "available";
     }
 
     // Check if previous lesson was completed
-    const prevLesson = lessons.find((l) => l.order === order - 1);
+    const prevLesson = safeLessons.find((l) => l.order === order - 1);
     const prevProg = prevLesson
-      ? userProgress.find((p) => p.lessonId === prevLesson._id)
+      ? safeProgress.find((p) => p.lessonId === prevLesson._id)
       : null;
 
     if (!prevProg || !prevProg.completed) return "locked";
 
-    const prog = userProgress.find((p) => p.lessonId === lessonId);
+    const prog = safeProgress.find((p) => p.lessonId === lessonId);
     return prog?.completed ? "completed" : "available";
   };
 
@@ -52,22 +55,22 @@ export default function LessonSidebar({
           <div
             className="progress-bar-fill"
             style={{
-              width: `${(userProgress.filter((p) => p.completed).length / Math.max(lessons.length, 1)) * 100}%`,
+          width: `${(safeProgress.filter((p) => p.completed).length / Math.max(safeLessons.length, 1)) * 100}%`,
               background: course.color,
             }}
           />
         </div>
         <p className="text-[10px] mt-2 font-medium" style={{ color: "var(--text-muted)" }}>
-          {userProgress.filter((p) => p.completed).length} / {lessons.length} COMPLETED
+          {safeProgress.filter((p) => p.completed).length} / {safeLessons.length} COMPLETED
         </p>
       </div>
 
       {/* Lesson List */}
       <div className="overflow-y-auto flex-1 p-4 space-y-2">
-        {lessons.map((lesson) => {
+        {safeLessons.map((lesson) => {
           const status = getLessonStatus(lesson._id, lesson.order);
           const isCurrent = lesson._id === currentLessonId;
-          const prog = userProgress.find((p) => p.lessonId === lesson._id);
+          const prog = safeProgress.find((p) => p.lessonId === lesson._id);
 
           return (
             <Link

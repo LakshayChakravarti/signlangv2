@@ -5,8 +5,9 @@ import Navbar from "@/components/ui/Navbar";
 import Footer from "@/components/ui/Footer";
 import GestureSequencePlayer from "@/components/learning/GestureSequencePlayer";
 import { translateTextToSignSequence } from "@/lib/TranslatorEngine";
-import { HiOutlineLanguage, HiOutlineMicrophone, HiOutlineTrash, HiOutlineSparkles } from "react-icons/hi2";
+import { HiOutlineLanguage, HiOutlineMicrophone, HiOutlineTrash, HiOutlineSparkles, HiOutlineQuestionMarkCircle } from "react-icons/hi2";
 import { useAccessibility } from "@/contexts/AccessibilityContext";
+import GestureDisplay from "@/components/common/GestureDisplay";
 
 export default function TranslatorPage() {
   const [inputText, setInputText] = useState("");
@@ -158,7 +159,6 @@ export default function TranslatorPage() {
               </div>
             </div>
 
-            {/* Translation Settings */}
             <div className="glass-card p-4 sm:p-6 border-[var(--glass-border)] flex items-center justify-between">
               <div>
                 <h4 className="font-bold text-[var(--text-primary)] text-sm mb-1">Animation Speed</h4>
@@ -185,6 +185,20 @@ export default function TranslatorPage() {
                 </button>
               </div>
             </div>
+
+            {/* How to Perform Section */}
+            {sequence.length > 0 && (
+              <div className="glass-card p-6 border-l-4 border-indigo-500 animate-fade-in">
+                <h4 className="font-bold text-[var(--text-primary)] flex items-center gap-2 mb-4">
+                  <HiOutlineQuestionMarkCircle className="w-5 h-5 text-indigo-500" />
+                  How to Perform
+                </h4>
+                <GestureDisplay 
+                  gestureId={sequence[0].word.charAt(0).toUpperCase()} 
+                  size="md" 
+                />
+              </div>
+            )}
 
           </div>
 

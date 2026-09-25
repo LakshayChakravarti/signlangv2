@@ -105,8 +105,8 @@ export default function useMediaPipe(videoRef, isRunning = true, onLandmarks = n
           try {
             const stream = await navigator.mediaDevices.getUserMedia({
               video: { 
-                width: { ideal: 640 },
-                height: { ideal: 480 },
+                width: { ideal: 1280 },
+                height: { ideal: 720 },
                 facingMode: "user" 
               },
               audio: false

@@ -161,6 +161,8 @@ export default function LessonPlayer({
                 <PracticeMode 
                   targetGesture={lesson?.content?.value || "A"} 
                   onComplete={handleTestComplete}
+                  courseId={course?._id || course?.id}
+                  lessonId={lesson?._id || lesson?.id}
                 />
               </motion.div>
             )}
@@ -206,21 +208,14 @@ export default function LessonPlayer({
             {activeTab === "learn" && (
               <button
                 onClick={() => setActiveTab("practice")}
-                className="btn btn-accent shadow-lg text-white"
+                className="btn bg-blue-600 hover:bg-blue-700 text-white shadow-lg"
               >
-                Proceed to Practice{" "}
+                Proceed to Practice
                 <HiOutlineArrowRight className="w-4 h-4 ml-2" />
               </button>
             )}
 
-            {activeTab === "practice" && (
-              <button
-                onClick={() => setActiveTab("test")}
-                className="btn btn-danger shadow-lg text-white bg-red-500 hover:bg-red-600"
-              >
-                Take the Test <HiOutlineArrowRight className="w-4 h-4 ml-2" />
-              </button>
-            )}
+            {/* Practice button removed - handled inside PracticeMode component */}
 
             {nextLessonId && activeTab === "test" && (
               <button

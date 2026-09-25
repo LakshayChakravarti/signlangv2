@@ -29,20 +29,21 @@ export default function LessonWrapperPage() {
 
         const [courseRes, progRes, lessonRes] = await Promise.all([
           api.get(`/courses/${courseId}`),
-          api.get(`/progress/${courseId}`),
+          api.get(`/progress/${courseId}`).catch(() => ({ data: { progress: [] } })),
           api.get(`/courses/${courseId}/lessons/${lessonId}`)
         ]);
 
         if (mounted) {
-          // Flatten data if needed based on API response structure
-          setCourse(courseRes.data.course || courseRes.data);
-          setLessons(courseRes.data.lessons || []);
-          setUserProgress(progRes.data.progress || progRes.data);
-          setCurrentLesson(lessonRes.data.lesson || lessonRes.data);
+          setCourse(courseRes.data?.course || courseRes.data);
+          const rawLessons = courseRes.data?.lessons;
+          setLessons(Array.isArray(rawLessons) ? rawLessons : []);
+          const rawProgress = progRes.data?.progress;
+          setUserProgress(Array.isArray(rawProgress) ? rawProgress : []);
+          setCurrentLesson(lessonRes.data?.lesson || lessonRes.data);
         }
 
       } catch (err) {
-        console.warn("Lesson load failed:", err.message);
+        console.warn("[LessonPage] Lesson load failed:", err.message);
       } finally {
         if (mounted) setLoading(false);
       }
@@ -53,7 +54,7 @@ export default function LessonWrapperPage() {
     return () => {
       mounted = false;
     };
-  }, [courseId, lessonId]); // ✅ ONLY THESE
+  }, [courseId, lessonId]);
 
   if (loading || user === null) {
     return (
@@ -63,12 +64,22 @@ export default function LessonWrapperPage() {
     );
   }
 
-  // Issue 6: never silently crash — show a clear loading message if data is missing
+  // Show a real error card — not an infinite spinner — when data fails to load
   if (!course || !currentLesson) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-[var(--bg-primary)]">
-        <div className="w-12 h-12 border-4 border-[var(--primary)] border-t-transparent rounded-full animate-spin" />
-        <p className="text-[var(--text-secondary)] font-medium">Loading lesson...</p>
+      <div className="min-h-screen flex flex-col items-center justify-center gap-6 bg-[var(--bg-primary)] p-8">
+        <div className="glass-card p-10 text-center max-w-md mx-auto">
+          <h2 className="text-2xl font-bold text-red-500 mb-3">Failed to Load Lesson</h2>
+          <p className="text-[var(--text-secondary)] mb-6">
+            The lesson data could not be retrieved. The course or lesson may not exist, or there was a network error.
+          </p>
+          <button
+            onClick={() => router.push("/courses")}
+            className="btn btn-primary w-full py-3 rounded-xl font-bold"
+          >
+            Back to Courses
+          </button>
+        </div>
       </div>
     );
   }

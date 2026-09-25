@@ -7,6 +7,7 @@ import { HiOutlineArrowLeft } from "react-icons/hi2";
 import WebcamCapture from "@/components/webcam/WebcamCapture";
 import useGesturePredictor from "@/hooks/useGesturePredictor";
 import { HiOutlineBolt } from "react-icons/hi2";
+import GestureDisplay from "@/components/common/GestureDisplay";
 
 const LETTERS = ["A", "B", "C", "D", "L", "V", "W", "Y", "I", "U"];
 
@@ -132,9 +133,9 @@ export default function SpeedGame() {
              
               {/* Target Display Overlay */}
               {isPlaying && (
-                <div className="absolute top-6 right-6 z-20 w-32 h-32 bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl border-2 border-[var(--warning)] flex flex-col items-center justify-center scale-up-center">
-                   <span className="text-xs font-bold uppercase text-[var(--warning)]">Target</span>
-                   <span className="text-6xl font-extrabold text-slate-800">{targetLetter}</span>
+                <div className="absolute top-6 right-6 z-20 w-32 h-auto bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl border-2 border-[var(--warning)] p-2 scale-up-center flex flex-col items-center">
+                   <span className="text-[10px] font-bold uppercase text-[var(--warning)] mb-1">Target</span>
+                   <GestureDisplay gestureId={targetLetter} size="sm" className="w-full" />
                 </div>
               )}
 

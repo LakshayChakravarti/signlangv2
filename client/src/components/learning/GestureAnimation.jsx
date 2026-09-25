@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { GESTURE_IMAGES } from "@/lib/gestures";
+import GestureDisplay from "../common/GestureDisplay";
 
 /**
  * GestureAnimation — shows a real ASL reference image for a given letter/word.
@@ -42,24 +43,9 @@ export default function GestureAnimation({
         className="relative z-10 flex flex-col items-center"
       >
         <div
-          className="w-48 h-48 rounded-3xl flex items-center justify-center shadow-xl overflow-hidden bg-white border"
-          style={{ borderColor: `${color}40` }}
+          className="w-48 h-48 rounded-3xl flex items-center justify-center shadow-xl overflow-hidden"
         >
-          {imgUrl && !imgError ? (
-            <img
-              src={imgUrl}
-              alt={`ASL sign for ${target}`}
-              className="w-full h-full object-contain p-3"
-              onError={() => setImgError(true)}
-            />
-          ) : (
-            <span
-              className="text-8xl font-black opacity-80"
-              style={{ color, textShadow: `0 4px 12px ${color}40` }}
-            >
-              {target}
-            </span>
-          )}
+          <GestureDisplay gestureId={target} size="sm" className="w-full h-full" />
         </div>
 
         {word && (
