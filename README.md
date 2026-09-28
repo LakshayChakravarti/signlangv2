@@ -32,39 +32,33 @@ SignBridge transforms sign language education into an interactive, gamified, and
 
 ## 📸 Application Screenshots
 
-### 🏠 Home & Discovery
-![SignBridge Home Page](docs/screenshots/home.png)
-*Modern landing page showcasing course tiers, feature highlights, and interactive accessibility previews.*
+### 🏠 Landing Page & Hero
+![SignBridge Landing Page](docs/screenshots/home.png)
+*The SignBridge homepage showcases the platform's core promise — AI-powered sign language learning with real-time gesture detection at 98% accuracy. Features quick stats (26+ ASL letters, 30 FPS detection, 100% accessible, free to start) and clear CTAs to begin learning instantly.*
 
 ---
 
-### 📚 Structured Courses & Curriculum
-![Courses & Lessons Catalog](docs/screenshots/courses.png)
-*Curated learning pathways spanning Beginner (ASL Alphabets), Intermediate (Phrases & Vocabulary), and Pro communication.*
+### 🔐 Authentication & User Onboarding
+![SignBridge Login Portal](docs/screenshots/login.png)
+*Clean, glassmorphic sign-in portal with email and password authentication, password visibility toggle, and a quick sign-up link. Designed with accessibility-first principles on a sleek dark gradient background.*
 
 ---
 
-### 🖐️ Real-Time AI Gesture Recognition & Interactive Assessment
-![Interactive Lesson Assessment](docs/screenshots/lesson.png)
-*Live webcam interface with MediaPipe hand landmark extraction, real-time prediction feedback, accuracy confidence meters, and error correction hints.*
+### 📊 Student Dashboard & Progress Tracking
+![Student Dashboard](docs/screenshots/dashboard.png)
+*Personalized student dashboard displaying key learning metrics — completed lessons, day streak (with weekly calendar tracker), XP points, and average score. Includes a badges panel, continue-learning section, and quick-access navigation to all courses.*
 
 ---
 
-### 🔤 Text-to-Sign Language Translator
-![Text to Sign Translator](docs/screenshots/translator.png)
-*Transforms input English sentences and words into step-by-step visual ASL hand gesture sequences.*
+### 📚 Course Catalog & Curriculum Tiers
+![Explore Courses](docs/screenshots/courses.png)
+*Three structured learning tiers: **ASL Alphabet — Beginner** (26 lessons, 5h, Free), **ASL Common Phrases — Intermediate** (10 lessons, 4h, Free), and **ASL Fluency — Pro** (20h, ₹4900). Filter by difficulty level and search across all available courses.*
 
 ---
 
-### 🎮 Gamification & Interactive Sign Games
-![Sign Games & Practice Arcade](docs/screenshots/games.png)
-*Engaging arcade exercises including sign matching challenges, memory drills, and streak builders.*
-
----
-
-### 🔐 User Portal & Authentication
-![SignBridge Authentication](docs/screenshots/login.png)
-*Secure authentication with protected routes, student profiles, streak tracking, and course progress persistence.*
+### 🖐️ Real-Time AI Practice & Gesture Recognition
+![Interactive Lesson Practice](docs/screenshots/practice.png)
+*The heart of SignBridge — live webcam practice for Letter A with a reference animation on the left and the user's hand tracked by MediaPipe on the right (21 green landmarks visible). Shows real-time stats: total points (10), precision (33%), best streak (1), and AI engine status (online). Three learning modes available: Learn, Practice, and Test.*
 
 ---
 
