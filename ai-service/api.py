@@ -51,8 +51,24 @@ def _load_external_model():
         _model = load_model(model_path)
         logger.info(f"External ASL model loaded from {model_path}")
     except Exception as exc:
-        logger.error(f"Failed to load model: {exc}")
-        _model = None
+        logger.warning(f"Standard load_model failed ({exc}), attempting weight reconstruction fallback...")
+        try:
+            from keras.models import Sequential
+            from keras.layers import Input, Dense, BatchNormalization, Dropout
+            m = Sequential([
+                Input(shape=(63,)),
+                Dense(128, activation='relu', name='dense'),
+                BatchNormalization(name='batch_normalization'),
+                Dropout(0.3, name='dropout'),
+                Dense(64, activation='relu', name='dense_1'),
+                Dense(5, activation='softmax', name='dense_2')
+            ])
+            m.load_weights(model_path)
+            _model = m
+            logger.info(f"External ASL model reconstructed and weights loaded successfully from {model_path}")
+        except Exception as fallback_exc:
+            logger.error(f"Failed to load model in fallback: {fallback_exc}")
+            _model = None
 
 
 # ---------------------------------------------------------------------------

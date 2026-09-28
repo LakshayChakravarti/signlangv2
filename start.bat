@@ -2,12 +2,12 @@
 echo Starting SignLangv2 Services...
 
 echo Starting Backend Server (Port 5000)...
-start "Backend Server" cmd /k "cd server && npm install && npm run dev"
+start "Backend Server" cmd /k "cd /d "%~dp0server" && npm run dev"
 
 echo Starting Frontend Dev Server (Port 3000)...
-start "Frontend Client" cmd /k "cd client && npm install && npm run dev"
+start "Frontend Client" cmd /k "cd /d "%~dp0client" && npm run dev"
 
 echo Starting AI Service (Port 8000)...
-start "AI Service" cmd /k "cd ai-service && pip install -r requirements.txt && uvicorn api:app --reload --port 8000"
+start "AI Service" cmd /k "cd /d "%~dp0ai-service" && python -m uvicorn api:app --reload --port 8000"
 
 echo All services are starting up in separate windows!

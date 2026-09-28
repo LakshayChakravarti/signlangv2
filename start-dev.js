@@ -51,7 +51,7 @@ console.log('  Web Client  → http://localhost:3000');
 console.log('  Press Ctrl+C to stop all services.\n');
 
 // 1. AI Service — Python FastAPI (start first, model load takes time)
-run('AI  ', 'uvicorn', ['api:app', '--port', '8000', '--workers', '1', '--reload'],
+run('AI  ', 'python', ['-m', 'uvicorn', 'api:app', '--port', '8000', '--reload'],
   path.join(root, 'ai-service'), 33);
 
 // 2. Node API Server — give AI service 2s head-start
